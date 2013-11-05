@@ -1,0 +1,11 @@
+= Prime Challenge
+
+=== DESCRIPTION
+
+Prints a multiplication table with consecutive primes as the operands. This is done using a generalized ComputedTable class that can take any enumerable inputs and compute their combination using a provided block.
+
+To use, run
+
+    ruby ./prime_challenge.rb
+
+Can be run with an optional integer argument to change the size of the prime lists used to generate the table. Default is 10.
