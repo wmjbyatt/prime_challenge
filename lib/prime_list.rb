@@ -1,5 +1,4 @@
 class PrimeList
-  include Enumerable
   #
   # Considered using streams or some other clever data structure, but I ultimately decided that a) they would reduce
   # readability and increase conceptual complexity and b) Ruby's native Array implementation is so much faster than
