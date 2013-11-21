@@ -11,6 +11,7 @@ class PrimeList
   # Further chose to build it all with simple trial division (versus some clever Sieve or something) to keep the code
   # compact enough to be obvious and because there don't appear to be any resource issues this way
   #
+  include Enumerable
 
   def initialize length
     @primes = Array.new
@@ -19,40 +20,49 @@ class PrimeList
     candidate = 2
 
     while @primes.length < length
-      @primes << candidate if candidate.is_prime?
-      candidate += 1 # Frankly, we only need to test every other number (no odd except 3 is prime), but the special
-                     # handling of 3 would obfuscate the code and the performance gains wouldn't be valuable.
+      @primes << candidate if PrimeList.is_prime? candidate
+      candidate += 1 # Frankly, we only need to test every other number (no odd except 3 is prime), but the special                     # handling of 3 would obfuscate the code and the performance gains wouldn't be valuable.
     end
   end
 
-  # Delegate method calls to @primes. This is simple enough to be acceptable.
-  def method_missing method, *args, &block
-    @primes.send method, *args, &block
+  # Explicit delegation
+
+  def [](index)
+    @primes[index]
   end
 
-end
+  def []=(index, value)
+    @primes[index] = value
+  end
 
-# Extend integer with Integer#is_prime?. This lets us keep PrimeList#iniitalize pretty neat and tidy and conceptually
-# clear. Also would theoretically let us optimize a primality test without affecting PrimeList's code
-class Integer
-  def is_prime?
+  def each
+    @primes.each do |prime|
+      yield prime
+    end
+  end
+
+  # Give us an is_prime? method
+
+  def self.is_prime?(number)
     # We're going to only look at positive values here. I don't believe it's correct to call negatives composite OR
     # prime, but we'll check em as though it is. This matches Prime's functionality.
-    this = self.abs
+
+    number = number.abs
 
     # Return a few simple base cases
-    return false if this < 2
-    return true if this == 2
-    return false if this % 2 == 0
+    return false if number < 2
+    return true if number == 2
+    return false if number % 2 == 0
 
-    # Build divisor list
-    divisors = (2..Math.sqrt(this).ceil)
+    # Build divisor list, we can ignore all evens because of % 2 == 0 test earlier
+    divisors = (3..Math.sqrt(number).ceil).step(2)
 
     # Aaaaaaand do trial division
     divisors.each do |divisor|
-      return false if this % divisor == 0
+      return false if number % divisor == 0
     end
 
     return true
   end
+
 end

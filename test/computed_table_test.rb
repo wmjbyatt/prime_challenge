@@ -2,7 +2,10 @@ require_relative 'helper'
 
 class ComputedTableTest < MiniTest::Test
   def setup
-    @primes = PrimeList.new 10
+    @prime_list_10 = PrimeList.new 10
+
+    @prime_list_random = PrimeList.new Math.rand(100)
+
     @block = lambda { |x, y| x * y }
     @table = ComputedTable.new(@primes, @primes) { |x, y| @block.call x, y }
   end

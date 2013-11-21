@@ -55,9 +55,18 @@ class ComputedTable
 
   end
 
-  # Delegate array methods to @table
+  # Delegate array methods to @table...
   def method_missing method, *args, &block
-    @table.send method, *args, &block
+    if @table.respond_to? method
+      @table.send method, *args, &block
+    else
+      super
+    end
+  end
+
+  # ... and make respond_to? act correctly
+  def respond_to?(sym, include_private = false)
+    @table.respond_to?(sym) || super(sym, include_private)
   end
 
   protected
