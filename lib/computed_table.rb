@@ -1,11 +1,17 @@
+require 'forwardable'
+
 class ComputedTable
+  extend Forwardable
+
+  def_delegators :@table, :length, :each, :each_index, :[]
 
   def initialize column_foundation, row_foundation, &cell_compute
     # Initalize table
+
     width = column_foundation.length
     height = row_foundation.length
-    @table = Array.new(width+1) { Array.new(height+1)} # +1 accounts for empty cell in top-left
-    @max_character_length = 1                          # Tracking for pretty-printing
+    @table = Array.new(width+1) { Array.new(height+1) } # +1 accounts for empty cell in top-left
+    @max_character_length = 1                           # Tracking for pretty-printing
 
     self.populate_column_headers column_foundation
     self.populate_row_headers row_foundation
@@ -55,20 +61,6 @@ class ComputedTable
 
   end
 
-  # Delegate array methods to @table...
-  def method_missing method, *args, &block
-    if @table.respond_to? method
-      @table.send method, *args, &block
-    else
-      super
-    end
-  end
-
-  # ... and make respond_to? act correctly
-  def respond_to?(sym, include_private = false)
-    @table.respond_to?(sym) || super(sym, include_private)
-  end
-
   protected
 
   def update_max_character_length compare_value
@@ -93,7 +85,11 @@ class ComputedTable
     # stick a nil on the front of row_foundation and put that in @table[0]. Would normally just unshift this, but it
     # unshifts in place, modifying the array, which screws things up upstream. Oddly, row_foundation.dup.unshift wasn't
     # fixing it, which I don't understand.
-    @table[0] = [nil, row_foundation].flatten
+    #
+    # I'm not really clear on way I have to call #flatten on row_foundation. #flatten is supposed to be applied recursively.
+    # I'm wondering if the C implementation of #flatten checks to see if the objects are arrays instead of that they respond
+    # to flatten.
+    @table[0] = [nil, row_foundation.flatten].flatten
 
     # Run through and check each cell for character length. So far as this project's concerned, we happen to know that
     # the longest values are all going to be computed values (since we're multiplying integers), but that would be way

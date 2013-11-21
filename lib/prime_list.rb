@@ -1,3 +1,5 @@
+require 'forwardable'
+
 class PrimeList
   #
   # Considered using streams or some other clever data structure, but I ultimately decided that a) they would reduce
@@ -11,7 +13,9 @@ class PrimeList
   # Further chose to build it all with simple trial division (versus some clever Sieve or something) to keep the code
   # compact enough to be obvious and because there don't appear to be any resource issues this way
   #
-  include Enumerable
+  extend Forwardable
+
+  def_delegators :@primes, :[], :[]=, :length, :each, :flatten
 
   def initialize length
     @primes = Array.new
@@ -22,22 +26,6 @@ class PrimeList
     while @primes.length < length
       @primes << candidate if PrimeList.is_prime? candidate
       candidate += 1 # Frankly, we only need to test every other number (no odd except 3 is prime), but the special                     # handling of 3 would obfuscate the code and the performance gains wouldn't be valuable.
-    end
-  end
-
-  # Explicit delegation
-
-  def [](index)
-    @primes[index]
-  end
-
-  def []=(index, value)
-    @primes[index] = value
-  end
-
-  def each
-    @primes.each do |prime|
-      yield prime
     end
   end
 
